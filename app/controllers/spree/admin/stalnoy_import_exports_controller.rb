@@ -562,9 +562,9 @@ module Spree
             ].to_json}\n\n"
 
           when 'variant'
-
+            base_json = base_json.sort_by {|h| h['id']}
             base_json.each_with_index do |h, i|
-              a = Spree::Variant.find(h['id'])
+              a = Spree::Variant.find_by(id: h['id'])
               if !a.nil? then
                 a.update(sku: h['sku'],
                          weight: h['weight'],
