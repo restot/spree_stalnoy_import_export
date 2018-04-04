@@ -267,7 +267,7 @@ module Spree
           when 'country'
 
             json = base_json.first
-            Spree::Country.create!(id: json['id'],
+            a = Spree::Country.create!(id: json['id'],
                                    'iso_name' => json['iso_name'],
                                    'iso' => json['iso'],
                                    'iso3' => json['iso3'],
@@ -281,32 +281,71 @@ module Spree
                                                 'total' => base_json.count,
                                                 'last_row' => base_json.count,
                                                 'hash' => params[:path],
-                                                'id' => params[:ud]
+                                                'id' => params[:ud],
+                                                'obj_id' => h['id'],
+                                                'result' => a.valid?
+            ].to_json}\n\n"
+            unless a.valid?
+              fails_array << h
+            end
+            response.stream.write "data: #{Hash['status' => 'done',
+                                                'action' => 'api_put',
+                                                'total' => base_json.count,
+                                                'last_row' => base_json.count,
+                                                'hash' => params[:path],
+                                                'id' => params[:ud],
+                                                'fails_array' => fails_array
             ].to_json}\n\n"
 
           when 'states'
 
             base_json.each_with_index do |h, i|
 
-              Spree::State.create!(name: h['name'], abbr: h['abbr'], country_id: h['country_id'])
+              a = Spree::State.create!(name: h['name'], abbr: h['abbr'], country_id: h['country_id'])
               response.stream.write "data: #{Hash['status' => 'work',
                                                   'action' => 'api_put',
                                                   'total' => base_json.count,
                                                   'last_row' => i + 1,
                                                   'hash' => params[:path],
-                                                  'id' => params[:ud]
+                                                  'id' => params[:ud],
+                                                  'obj_id' => h['id'],
+                                                  'result' => a.valid?
+              ].to_json}\n\n"
+              unless a.valid?
+                fails_array << h
+              end
+              response.stream.write "data: #{Hash['status' => 'done',
+                                                  'action' => 'api_put',
+                                                  'total' => base_json.count,
+                                                  'last_row' => base_json.count,
+                                                  'hash' => params[:path],
+                                                  'id' => params[:ud],
+                                                  'fails_array' => fails_array
               ].to_json}\n\n"
 
             end
           when 'taxonomy'
             json = base_json.first
-            Spree::Taxonomy.create!(id: json['id'], position: json['position'], name: json['name'])
+            a = Spree::Taxonomy.create!(id: json['id'], position: json['position'], name: json['name'])
             response.stream.write "data: #{Hash['status' => 'work',
                                                 'action' => 'api_put',
                                                 'total' => base_json.count,
                                                 'last_row' => base_json.count,
                                                 'hash' => params[:path],
-                                                'id' => params[:ud]
+                                                'id' => params[:ud],
+                                                'obj_id' => h['id'],
+                                                'result' => a.valid?
+            ].to_json}\n\n"
+            unless a.valid?
+              fails_array << h
+            end
+            response.stream.write "data: #{Hash['status' => 'done',
+                                                'action' => 'api_put',
+                                                'total' => base_json.count,
+                                                'last_row' => base_json.count,
+                                                'hash' => params[:path],
+                                                'id' => params[:ud],
+                                                'fails_array' => fails_array
             ].to_json}\n\n"
           when 'taxons'
             base_json = base_json.sort_by {|h| h['id']}
@@ -372,6 +411,14 @@ module Spree
                                                   'result' => a.valid?
               ].to_json}\n\n"
             end
+            response.stream.write "data: #{Hash['status' => 'done',
+                                                'action' => 'api_put',
+                                                'total' => base_json.count,
+                                                'last_row' => base_json.count,
+                                                'hash' => params[:path],
+                                                'id' => params[:ud],
+                                                'fails_array' => fails_array
+            ].to_json}\n\n"
           when 'sale_rate'
 
             base_json = base_json.sort_by {|h| h['id']}
@@ -388,6 +435,20 @@ module Spree
                                                   'obj_id' => h['id'],
                                                   'result' => a.valid?
               ].to_json}\n\n"
+
+              unless a.valid?
+                fails_array << h
+              end
+
+              response.stream.write "data: #{Hash['status' => 'done',
+                                                  'action' => 'api_put',
+                                                  'total' => base_json.count,
+                                                  'last_row' => base_json.count,
+                                                  'hash' => params[:path],
+                                                  'id' => params[:ud],
+                                                  'fails_array' => fails_array
+              ].to_json}\n\n"
+
             end
           when 'product'
             base_json = base_json.sort_by {|h| h['id']}
@@ -415,6 +476,18 @@ module Spree
                                                   'obj_id' => h['id'],
                                                   'result' => a.valid?
               ].to_json}\n\n"
+              unless a.valid?
+                fails_array << h
+              end
+              response.stream.write "data: #{Hash['status' => 'done',
+                                                  'action' => 'api_put',
+                                                  'total' => base_json.count,
+                                                  'last_row' => base_json.count,
+                                                  'hash' => params[:path],
+                                                  'id' => params[:ud],
+                                                  'fails_array' => fails_array
+              ].to_json}\n\n"
+
             end
           when 'price'
             base_json.each_with_index do |h, i|
@@ -485,7 +558,7 @@ module Spree
             ].to_json}\n\n"
 
           when 'variant'
-            fails_array = []
+
             base_json.each_with_index do |h, i|
               a = Spree::Variant.find_by(product_id: h['product_id']).update(sku: h['sku'],
                                                                              weight: h['weight'],
