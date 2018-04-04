@@ -344,7 +344,7 @@ module Spree
                                                 'fails_array' => fails_array
             ].to_json}\n\n"
           when 'taxons'
-            base_json = base_json.sort_by {|h| h['id']}
+
             base_json.each_with_index do |h, i|
 
               a = Spree::Taxon.new(id: h['id'],
