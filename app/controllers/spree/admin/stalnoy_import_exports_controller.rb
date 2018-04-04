@@ -451,6 +451,7 @@ module Spree
           when 'product'
             base_json = base_json.sort_by {|h| h['id']}
             base_json.each_with_index do |h, i|
+              startt = Time.now
               a = Spree::Product.create!(
                                         available_on: h['available_on'],
                                         deleted_at: h['deleted_at'],
@@ -465,6 +466,11 @@ module Spree
                                         meta_keywords: h['meta_keywords'],
                                         slug: h['slug'],
                                         price: 0)
+              endt = Time.now
+              diff = endt - startt
+              if diff < 0.03
+                sleep(0.03 - diff)
+              end
               response.stream.write "data: #{Hash['status' => 'work',
                                                   'action' => 'api_put',
                                                   'total' => base_json.count,
