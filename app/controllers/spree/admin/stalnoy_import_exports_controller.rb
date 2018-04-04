@@ -565,7 +565,7 @@ module Spree
           when 'variant'
 
             base_json.each_with_index do |h, i|
-              a = Spree::Variant.find_by(product_id: h['product_id']).update(sku: h['sku'],
+              a = Spree::Variant.find(h['id']).update(sku: h['sku'],
                                                                              weight: h['weight'],
                                                                              height: h['height'],
                                                                              width: h['width'],
