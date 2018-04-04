@@ -1,4 +1,4 @@
 ru:
   spree:
     stalnoy_import_export:
-      import_export: "Импорт/Экспорт"
+      import_export: "Загрузка/Выгрузка"
