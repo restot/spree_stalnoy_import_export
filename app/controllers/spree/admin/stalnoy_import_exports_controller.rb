@@ -340,7 +340,6 @@ module Spree
                                                 'last_row' => base_json.count,
                                                 'hash' => params[:path],
                                                 'id' => params[:ud],
-                                                'obj_id' => h['id'],
                                                 'result' => a.valid?
             ].to_json}\n\n"
             unless a.valid?
@@ -355,7 +354,7 @@ module Spree
                                                 'fails_array' => fails_array
             ].to_json}\n\n"
           when 'taxons'
-            base_json = base_json.sort_by {|h| h['id']}
+            #base_json = base_json.sort_by {|h| h['id']}
             base_json.each_with_index do |h, i|
 
               a = Spree::Taxon.new(id: h['id'],
