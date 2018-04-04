@@ -73,6 +73,8 @@ module Spree
               ].to_json}\n\n"
             end
 
+
+
           when 'taxonomy'
             json = base_json.first
             t = Spree::Taxonomy.exists?(id: json['id'], position: json['position'], name: json['name'])
@@ -236,6 +238,15 @@ module Spree
 
             ].to_json}\n\n"
         end
+
+        response.stream.write "data: #{Hash['status' => 'done',
+                                            'action' => 'api_put',
+                                            'total' => base_json.count,
+                                            'last_row' => base_json.count,
+                                            'hash' => params[:path],
+                                            'id' => params[:ud],
+
+        ].to_json}\n\n"
 
 
       rescue IOError, ActionController::Live::ClientDisconnected
