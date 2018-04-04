@@ -452,6 +452,7 @@ module Spree
             base_json.each_with_index do |h, i|
               startt = Time.now
               a = Spree::Product.create!(
+                  id: h['id'],
                   available_on: h['available_on'],
                   deleted_at: h['deleted_at'],
                   tax_category_id: h['tax_category_id'],
@@ -588,7 +589,7 @@ module Spree
                                                   'hash' => params[:path],
                                                   'id' => params[:ud],
                                                   'obj_id' => h['id'],
-                                                  'result' => a
+                                                  'result' => !a.nil?
               ].to_json}\n\n"
             end
             response.stream.write "data: #{Hash['status' => 'done',
