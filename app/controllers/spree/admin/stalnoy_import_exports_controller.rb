@@ -471,6 +471,7 @@ module Spree
               if diff < 0.03
                 sleep(0.03 - diff)
               end
+
               response.stream.write "data: #{Hash['status' => 'work',
                                                   'action' => 'api_put',
                                                   'total' => base_json.count,
@@ -483,16 +484,15 @@ module Spree
               unless a.valid?
                 fails_array << h
               end
-              response.stream.write "data: #{Hash['status' => 'done',
-                                                  'action' => 'api_put',
-                                                  'total' => base_json.count,
-                                                  'last_row' => base_json.count,
-                                                  'hash' => params[:path],
-                                                  'id' => params[:ud],
-                                                  'fails_array' => fails_array
-              ].to_json}\n\n"
-
             end
+            response.stream.write "data: #{Hash['status' => 'done',
+                                                'action' => 'api_put',
+                                                'total' => base_json.count,
+                                                'last_row' => base_json.count,
+                                                'hash' => params[:path],
+                                                'id' => params[:ud],
+                                                'fails_array' => fails_array
+            ].to_json}\n\n"
           when 'price'
             base_json.each_with_index do |h, i|
               startt = Time.now
@@ -552,6 +552,7 @@ module Spree
               end
 
             end
+
             response.stream.write "data: #{Hash['status' => 'done',
                                                 'action' => 'api_put',
                                                 'total' => count,
