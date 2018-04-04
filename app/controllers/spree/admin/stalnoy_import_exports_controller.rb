@@ -74,7 +74,6 @@ module Spree
             end
 
 
-
           when 'taxonomy'
             json = base_json.first
             t = Spree::Taxonomy.exists?(id: json['id'], position: json['position'], name: json['name'])
@@ -168,7 +167,7 @@ module Spree
               ].to_json}\n\n"
             end
           when 'product_taxon'
-           #S Spree::Product.find_by(slug: 'propanovyy-reduktor-mimgas-m1000u-do-90-kw')
+            #S Spree::Product.find_by(slug: 'propanovyy-reduktor-mimgas-m1000u-do-90-kw')
             # base_json.each_with_index do |h, i|
             #   if h['products'] != nil
             #     products = h['products']
@@ -275,13 +274,13 @@ module Spree
 
             json = base_json.first
             a = Spree::Country.create!(id: json['id'],
-                                   'iso_name' => json['iso_name'],
-                                   'iso' => json['iso'],
-                                   'iso3' => json['iso3'],
-                                   'name' => json['name'],
-                                   'numcode' => json['numcode'],
-                                   'states_required' => json['states_required'],
-                                   'zipcode_required' => json['zipcode_required'])
+                                       'iso_name' => json['iso_name'],
+                                       'iso' => json['iso'],
+                                       'iso3' => json['iso3'],
+                                       'name' => json['name'],
+                                       'numcode' => json['numcode'],
+                                       'states_required' => json['states_required'],
+                                       'zipcode_required' => json['zipcode_required'])
 
             response.stream.write "data: #{Hash['status' => 'work',
                                                 'action' => 'api_put',
@@ -453,19 +452,19 @@ module Spree
             base_json.each_with_index do |h, i|
               startt = Time.now
               a = Spree::Product.create!(
-                                        available_on: h['available_on'],
-                                        deleted_at: h['deleted_at'],
-                                        tax_category_id: h['tax_category_id'],
-                                        shipping_category_id: h['shipping_category_id'],
-                                        promotionable: h['promotionable'],
-                                        discontinue_on: h['discontinue_on'],
-                                        name: h['name'],
-                                        description: h['description'],
-                                        meta_title: h['meta_title'],
-                                        meta_description: h['meta_description'],
-                                        meta_keywords: h['meta_keywords'],
-                                        slug: h['slug'],
-                                        price: 0)
+                  available_on: h['available_on'],
+                  deleted_at: h['deleted_at'],
+                  tax_category_id: h['tax_category_id'],
+                  shipping_category_id: h['shipping_category_id'],
+                  promotionable: h['promotionable'],
+                  discontinue_on: h['discontinue_on'],
+                  name: h['name'],
+                  description: h['description'],
+                  meta_title: h['meta_title'],
+                  meta_description: h['meta_description'],
+                  meta_keywords: h['meta_keywords'],
+                  slug: h['slug'],
+                  price: 0)
               endt = Time.now
               diff = endt - startt
               if diff < 0.03
@@ -515,7 +514,7 @@ module Spree
                                                   'hash' => params[:path],
                                                   'id' => params[:ud],
                                                   'obj_id' => h['id'],
-                                                  'result' => (a == false)? a : a.valid?
+                                                  'result' => (a == false) ? a : a.valid?
               ].to_json}\n\n"
             end
             response.stream.write "data: #{Hash['status' => 'done',
@@ -528,14 +527,14 @@ module Spree
             ].to_json}\n\n"
           when 'product_taxon'
             count = 0
-            base_json.each {|t| count = count + t['products'].count }
+            base_json.each {|t| count = count + t['products'].count}
             count_index = 0
             base_json.each_with_index do |h, i|
               if h['products'] != nil
                 products = h['products']
-                products.each_with_index do |p,pI|
-                  r = Spree::Product.find_by(slug:p['slug']).taxons=Spree::Taxon.where(id: h['id'])
-                  count_index+=1;
+                products.each_with_index do |p, pI|
+                  r = Spree::Product.find_by(slug: p['slug']).taxons = Spree::Taxon.where(id: h['id'])
+                  count_index += 1;
                   response.stream.write "data: #{Hash['status' => 'work',
                                                       'action' => 'api_put',
                                                       'total' => count,
@@ -565,19 +564,21 @@ module Spree
           when 'variant'
 
             base_json.each_with_index do |h, i|
-              a = Spree::Variant.find(h['id']).update(sku: h['sku'],
-                                                                             weight: h['weight'],
-                                                                             height: h['height'],
-                                                                             width: h['width'],
-                                                                             depth: h['depth'],
-                                                                             is_master: h['is_master'],
-                                                                             cost_price: h['cost_price'],
-                                                                             position: h['position'],
-                                                                             cost_currency: h['cost_currency'],
-                                                                             track_inventory: h['track_inventory'],
-                                                                             tax_category_id: h['tax_category_id'],
-                                                                             discontinue_on: h['discontinue_on'])
-              unless a
+              a = Spree::Variant.find(h['id'])
+              if !a.nil? then
+                a.update(sku: h['sku'],
+                         weight: h['weight'],
+                         height: h['height'],
+                         width: h['width'],
+                         depth: h['depth'],
+                         is_master: h['is_master'],
+                         cost_price: h['cost_price'],
+                         position: h['position'],
+                         cost_currency: h['cost_currency'],
+                         track_inventory: h['track_inventory'],
+                         tax_category_id: h['tax_category_id'],
+                         discontinue_on: h['discontinue_on'])
+              else
                 fails_array << h
               end
               response.stream.write "data: #{Hash['status' => 'work',
@@ -612,7 +613,7 @@ module Spree
                                        attachment_updated_at: h['attachment_updated_at'],
                                        alt: h['alt'])
               if a.valid?
-               a.update(type: 'Spree::Image')
+                a.update(type: 'Spree::Image')
               else
                 fails_array << h
               end
