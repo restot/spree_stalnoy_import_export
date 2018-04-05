@@ -288,7 +288,6 @@ module Spree
                                                 'last_row' => base_json.count,
                                                 'hash' => params[:path],
                                                 'id' => params[:ud],
-                                                'obj_id' => h['id'],
                                                 'result' => a.valid?
             ].to_json}\n\n"
             unless a.valid?
