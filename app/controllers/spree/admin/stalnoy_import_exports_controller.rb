@@ -1,6 +1,6 @@
 module Select
   def take_name (name)
-     /.*[1-9]_(.*)\.txt/.match(name)[1]
+    /.*[1-9]_(.*)\.txt/.match(name)[1]
   end
 
   def get_json(id)
@@ -38,36 +38,35 @@ module Select
 
   def taxon_create(master, base_json)
     puts master
-    parent =  base_json.select { |s| s['id'] == master['parent_id'] }.first
+    parent = base_json.select {|s| s['id'] == master['parent_id']}.first
     unless parent.nil?
-          if Spree::Taxon.find_by(name: parent['name']).nil?
-            taxon = base_json.select { |s| s['name'] == parent['name'] }.first
+      if Spree::Taxon.find_by(name: parent['name']).nil?
+        taxon = base_json.select {|s| s['name'] == parent['name']}.first
 
-            taxon_create(taxon, base_json)
+        taxon_create(taxon, base_json)
 
-          end
+      end
 
-          parent_taxon = Spree::Taxon.find_by(name: parent['name'])
+      parent_taxon = Spree::Taxon.find_by(name: parent['name'])
     end
 
 
+    if Spree::Taxon.find_by(name: master['name']).nil?
+      r = Spree::Taxon.create(
+          parent_id: (parent.nil?) ? nil : parent_taxon.id,
+          position: master['position'],
+          taxonomy_id: master['taxonomy_id'],
+          name: master['name'],
+          description: master['description'],
+          meta_title: master['meta_title'],
+          meta_description: master['meta_description'],
+          meta_keywords: master['meta_keywords'],
+          permalink: master['permalink'])
 
-  if Spree::Taxon.find_by(name: master['name']).nil?
-    r = Spree::Taxon.create(
-        parent_id: (parent.nil?)? nil : parent_taxon.id,
-        position: master['position'],
-        taxonomy_id: master['taxonomy_id'],
-        name: master['name'],
-        description: master['description'],
-        meta_title: master['meta_title'],
-        meta_description: master['meta_description'],
-        meta_keywords: master['meta_keywords'],
-        permalink: master['permalink'])
-
-    return r.valid?
-  else
-    return true
-  end
+      return r.valid?
+    else
+      return true
+    end
 
   end
 
@@ -409,9 +408,12 @@ module Spree
                                               'fails_array' => fails_array
           ].to_json}\n\n"
         when 'taxons'
-          base_json = base_json.each { |h| if h['parent_id'] == nil then h['parent_id'] = 0 end}
+          base_json = base_json.each {|h|
+            if h['parent_id'] == nil then
+              h['parent_id'] = 0
+            end}
           base_json = base_json.sort_by {|h| h['id']}
-          base_json = base_json.each_with_index { |h,i| h.merge!('index' => i+1)}
+          base_json = base_json.each_with_index {|h, i| h.merge!('index' => i + 1)}
           base_json = base_json.sort_by {|h| h['parent_id']}
 
 
@@ -559,12 +561,14 @@ module Spree
         when 'product_taxon'
           count = 0
           base_json.each {|t| count = count + t['products'].count}
+          product_json = get_json 'product'
           count_index = 0
           base_json.each_with_index do |h, i|
             if h['products'] != nil
               products = h['products']
               products.each_with_index do |p, pI|
-                if Spree::Product.find_by(slug: p['slug']).nil?
+                product = product_json.select { |s| s['slug'] == p['slug'] }.first
+                if Spree::Product.find_by(name: product['name']).nil?
                   response.stream.write "data: #{Hash['status' => 'work',
                                                       'action' => 'api_put',
                                                       'total' => count,
@@ -572,7 +576,7 @@ module Spree
                                                       'hash' => params[:path],
                                                       'id' => params[:ud],
                                                       'obj_id' => h['id'],
-                                                      'fallback'=> 'product nil',
+                                                      'fallback' => 'product nil',
                                                       'result' => false
                   ].to_json}\n\n"
                   next
@@ -606,9 +610,13 @@ module Spree
           ].to_json}\n\n"
 
         when 'variant'
+          product_json = get_json('product')
           base_json = base_json.sort_by {|h| h['id']}
           base_json.each_with_index do |h, i|
-            a = Spree::Variant.find_by(product_id: h['product_id'])
+            product = product_json.select {|s| s['id'] == h['product_id']}.first
+            product = Spree::Product.find_by(name: product['name'])
+
+            a = (product.nil?)? nil : Spree::Variant.find_by(product_id: product.id)
             if !a.nil? then
               a.update(weight: h['weight'],
                        height: h['height'],
@@ -620,7 +628,8 @@ module Spree
                        cost_currency: h['cost_currency'],
                        track_inventory: h['track_inventory'],
                        tax_category_id: h['tax_category_id'],
-                       discontinue_on: h['discontinue_on'])
+                       discontinue_on: h['discontinue_on'],
+                       price: 0)
             else
               fails_array << h
             end
